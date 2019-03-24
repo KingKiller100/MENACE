@@ -1,0 +1,5 @@
+﻿  World1.cpp
+c:\users\d012120g\documents\projects\menace\menace\iworld.h(71): warning C4018: '<': signed/unsigned mismatch
+c:\users\d012120g\documents\projects\menace\menace\iworld.h(90): warning C4018: '<=': signed/unsigned mismatch
+c:\users\d012120g\documents\projects\menace\menace\iworld.h(96): warning C4018: '>': signed/unsigned mismatch
+  MENACE.vcxproj -> C:\Users\d012120g\Documents\Projects\MENACE\Debug\MENACE.exe
