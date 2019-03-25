@@ -1,12 +1,16 @@
 #pragma once
-#include "Computer.h"
 #include <vector>
+#include "Computer.h"
 #include "Player.h"
 
 class DecisionManager final
 {
 public:
+	DecisionManager(const DecisionManager &&) = delete;
+	DecisionManager(const DecisionManager &) = delete;
+	
 	~DecisionManager();
+
 	static DecisionManager * Instance();
 
 	void Clear();
@@ -22,6 +26,7 @@ public:
 
 	void Restart(const bool playerWon);
 	
+	DecisionManager& operator=(const DecisionManager &) = delete;
 
 private:
 	DecisionManager();

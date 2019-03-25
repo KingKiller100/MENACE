@@ -6,7 +6,7 @@ World1::World1(const unsigned columns, const unsigned rows) : iWorld(columns, ro
 	
 	for (unsigned i = 0; i < 3; ++i)
 	{
-		const auto name = "X" + std::to_string(i + 1);
+		std::string name = "X" + std::to_string(i + 1);
 		unsigned pos = 0;
 		
 		switch (i)
@@ -85,14 +85,14 @@ void World1::Restart()
 		players[i]->LiveAgain();
 	}
 
-	computerDecisionManager->Restart(playerWon);
+	computerDecisionManager->Restart(playerIsWinner);
 }
 
 unsigned World1::ChoosePiece()
 {
 	unsigned short piece = 0;
 
-	while (!ValidPiece(piece))
+	while (!ValidPiece(piece) || !players[piece - 1]->IsAlive())
 	{
 		std::cout << "Select a valid piece number" << std::endl;
 		std::cin >> piece;
@@ -113,11 +113,17 @@ void World1::Update()
 			computer->Dead();		
 	}
 
-	std::cout << "Player Move" << std::endl;
+	std::cout << "Player's Move" << std::endl;
+
 	DrawMap();
 
-	std::cout << "Computer Turn" << std::endl;
+	std::cout << "Computer's Move" << std::endl;
 	computerDecisionManager->Move();
+
+	playerIsWinner = gameOver = NoMovablePieces();
+
+	if (gameOver)
+		return;
 
 	CheckWinState();
 }

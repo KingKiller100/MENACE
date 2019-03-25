@@ -55,8 +55,10 @@ void DecisionManager::Move()
 		break;
 	case 1:
 		SecondTurn();
+		break;
 	case 2:
 		ThirdTurn();
+		break;
 	}
 
 	turn++;
@@ -121,7 +123,70 @@ void DecisionManager::SecondTurn()
 {
 	choice = MakeChoice(secondLessons);
 
-
+	if (players[0]->GetLocation() == 7 && players[1]->GetLocation() == 5 && players[2]->GetLocation() == 6)
+	{
+		if (secondLessons[choice] == 0)
+		{
+			computers[1]->SetLocation(6);
+			players[2]->Dead();
+		}
+		else
+		{
+			computers[2]->SetLocation(5);
+			players[1]->Dead();
+		}
+	}
+	else if (players[0]->GetLocation() == 7 && !players[1]->IsAlive() && players[2]->GetLocation() == 6)
+	{
+		switch (secondLessons[choice])
+		{
+		case 0:
+			computers[0]->SetLocation(7);
+			players[0]->Dead();
+			break;
+		case 1:
+			computers[0]->SetLocation(8);
+			break;
+		case 2:
+			computers[1]->SetLocation(6);
+			players[2]->Dead();
+			break;
+		}
+	}
+	else if(players[0]->GetLocation() == 4 && players[1]->GetLocation() == 6 && players[2]->GetLocation() == 9)
+	{
+		switch (secondLessons[choice])
+		{
+		case 0:
+			computers[1]->SetLocation(4);
+			players[0]->Dead();
+			break;
+		case 1:
+			computers[1]->SetLocation(5);
+			break;
+		case 2:
+			computers[1]->SetLocation(6);
+			players[2]->Dead();
+			break;
+		}
+	}
+	else if (players[1]->GetLocation() == 4 && !players[0]->IsAlive() && players[2]->GetLocation() == 9)
+	{
+		computers[2]->SetLocation(6);
+	}
+	else if(players[0]->GetLocation() == 4 && !players[1]->GetLocation() == 5 && players[2]->GetLocation() == 9)
+	{
+		if (secondLessons[choice] == 0)
+		{
+			computers[0]->SetLocation(5);
+			players[1]->Dead();
+		}
+		else
+		{
+			computers[1]->SetLocation(4);
+			players[0]->Dead();
+		}
+	}
 }
 
 void DecisionManager::ThirdTurn()

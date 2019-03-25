@@ -50,7 +50,6 @@ protected:
 
 		const auto playerLoc = player->GetLocation();
 		
-
 		if (playerLoc - location != columns - 2)
 		{
 			for (auto && computer : computers)
@@ -88,13 +87,38 @@ protected:
 	void PlayerWin(Player *player)
 	{
 		gameOver = player->GetLocation() <= columns - 2;
-		if (gameOver) playerWon = true;
+		if (gameOver) playerIsWinner = true;
 	}
 
 	void ComputerWin(Computer *computer)
 	{
 		gameOver = computer->GetLocation() > ((rows - 2) * (columns - 2)) - (columns - 2);
-		if (gameOver) playerWon = false;
+		if (gameOver) playerIsWinner = false;
+	}
+
+	bool NoMovablePieces()
+	{
+		int immovable = 0;
+		int livingPlayers = 0;
+
+		for (auto && player : players)
+		{
+			if (player->IsAlive())
+				livingPlayers++;
+			else
+				continue;
+
+			for (auto && computer : computers)
+			{
+				if (!computer->IsAlive())
+					continue;
+
+				if (player->GetLocation() - computer->GetLocation() == (rows - 2))
+					immovable++;
+			}
+		}
+
+		return  immovable == livingPlayers;
 	}
 
 	void CheckWinState()
@@ -109,8 +133,9 @@ protected:
 			{
 				deadPieces++;
 				gameOver = deadPieces == 3;
+				playerIsWinner = false;
 			}
-
+						
 			if (gameOver)
 				return;
 		}
@@ -124,7 +149,8 @@ protected:
 			else
 			{
 				deadPieces++;
-				gameOver = deadPieces == 3;				
+				gameOver = deadPieces == 3;
+				playerIsWinner = true;
 			}
 
 			if (gameOver)
@@ -134,7 +160,7 @@ protected:
 	
 public:
 	bool gameOver;
-	bool playerWon;
+	bool playerIsWinner;
 
 protected:	
 	unsigned columns;

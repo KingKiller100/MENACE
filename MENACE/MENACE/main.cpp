@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.h"
+#include <experimental/filesystem>
 
 const unsigned short columns = 5;
 const unsigned short rows = 5;
@@ -15,8 +16,12 @@ bool PlayAgain()
 
 int main(int argc, char *argv)
 {
+	std::cout << "Welcome To MENACE!" << std::endl;
+
 	const auto game = Game::Create();
-	
+
+	std::cout << "You are the O's" << std::endl << "BEGIN" << std::endl;
+
 	auto play = game->Playing();
 
 	while (play)
@@ -32,7 +37,9 @@ int main(int argc, char *argv)
 			game->Restart();
 		}
 	}
-	
+
+	delete game;
+
 	std::cin.get();
 
 	return 0;

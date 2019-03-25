@@ -5,12 +5,7 @@
 class Entities
 {
 public:
-	Entities()
-	{
-		name = "X";
-		location = 0;
-		isAlive = true;
-	}
+	Entities() = delete;
 
 	Entities(std::string &name, const int location) : name(std::move(name)), location(location)
 	{		

@@ -24,7 +24,7 @@ public:
 		Draw();
 	}
 
-	bool Winner() const												{ return worlds[level]->playerWon; }
+	bool Winner() const												{ return worlds[level]->playerIsWinner; }
 
 private:
 	Game();

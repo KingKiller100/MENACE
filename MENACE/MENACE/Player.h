@@ -4,9 +4,7 @@
 class Player : public Entities
 {
 public:
-	Player()
-	= default;
-
+	Player(std::string &name, double location) = delete;
 	Player(std::string name, const unsigned short location);
 
 	~Player() = default;
