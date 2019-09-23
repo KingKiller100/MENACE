@@ -1,49 +1,44 @@
 #include "Game.h"
 #include "World1.h"
-#include <array>
 
-Game *Game::mInstance = nullptr;
 
-Game* Game::Create()
+Game::Game(Token) : playing(true)
 {
-	if (!mInstance)
-		mInstance = new Game;
-
-	return mInstance;
-}
-
-Game::Game()
-{
-	playing = true;
-	level = 0;
-	worlds.emplace_back(new World1(3, 3));
-
+	worlds = std::make_shared<World::World1>(3, 3);
 	Draw();
 }
 
 Game::~Game()
+{}
+
+bool Game::Winner() const
 {
-	delete mInstance;
+	return worlds->isPlayerWinner;
 }
 
 void Game::Update()
 {
-	const auto currentWorld = worlds[level];
-
-	if (level == 0)
-		dynamic_cast<World1*>(currentWorld)->Update();
+	worlds->Update();
 }
 
-void Game::Draw()
+void Game::Draw() noexcept
 {
-	const auto currentWorld = worlds[level];
-
-	if (level == 0)
-		dynamic_cast<World1*>(currentWorld)->DrawMap();
+	worlds->DrawMap();
 }
 
 void Game::PlayGame(const unsigned columns, const unsigned rows)
 {
 	Update();
+	Draw();
+}
+
+bool Game::GameOver() const
+{
+	return worlds->gameOver;
+}
+
+void Game::Restart()
+{
+	worlds->Restart();
 	Draw();
 }

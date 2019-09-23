@@ -1,197 +1,215 @@
-#include "World1.h" 
+#include "World1.h"
+#include "PlayerPiece.h"
+#include "ComputerPiece.h"
+#include "DecisionManager.h"
 
-World1::World1(const unsigned columns, const unsigned rows) : iWorld(columns, rows)
-{	
-	computerDecisionManager = DecisionManager::Instance();
+#include <iostream>
+
+namespace World
+{
+	static auto& decisionManager = DecisionManager::GetInstance();
+
+
+	World1::World1(const unsigned columns, const unsigned rows) : WorldBase(columns, rows)
+	{
+		for (unsigned short i = 0; i < 6; ++i)
+		{
+			const auto compTeam = i < 3;
+			std::string name = compTeam ? "X" : "O";
+
+			unsigned short pos;
+
+			switch (i)
+			{
+			case 0:
+				pos = 1;
+				name += std::to_string(1);
+				break;
+			case 1:
+				pos = 2;
+				name += std::to_string(2);
+				break;
+			case 2:
+				pos = 3;
+				name += std::to_string(3);
+				break;
+			case 3:
+				pos = 7;
+				name += std::to_string(1);
+				break;
+			case 4:
+				pos = 8;
+				name += std::to_string(2);
+				break;
+			case 5:
+				pos = 9;
+				name += std::to_string(3);
+				break;
+			default: break;
+			}
+
+			compTeam ?
+				computers.emplace_back(std::make_unique<ComputerPiece>(name, pos)) :
+				players.emplace_back(std::make_unique<PlayerPiece>(name, pos));
+		}
+	}
+
+	World1::~World1()
+		= default;
+
+	void World1::Restart()
+	{
+		for (unsigned i = 0; i < computers.size(); ++i)
+		{
+			computers[i]->SetName("X" + std::to_string(i + 1));
+
+			switch (i)
+			{
+			case 0: computers[i]->SetLocation(1);
+				break;
+			case 1: computers[i]->SetLocation(2);
+				break;
+			case 2: computers[i]->SetLocation(3);
+				break;
+			default: break;
+			}
+
+			computers[i]->LiveAgain();
+		}
+
+		for (unsigned i = 0; i < players.size(); ++i)
+		{
+			players[i]->SetName("O" + std::to_string(i + 1));
+
+			switch (i)
+			{
+			case 0: players[i]->SetLocation(7);
+				break;
+			case 1: players[i]->SetLocation(8);
+				break;
+			case 2: players[i]->SetLocation(9);
+				break;
+			default: break;
+			}
+
+			players[i]->LiveAgain();
+		}
+
+		decisionManager.Restart(isPlayerWinner);
+	}
 	
-	for (unsigned i = 0; i < 3; ++i)
+
+	unsigned World1::ChoosePiece()
 	{
-		std::string name = "X" + std::to_string(i + 1);
-		unsigned pos = 0;
-		
-		switch (i)
+		unsigned short piece = 0;
+
+		while (!ValidPiece(piece) || !players[piece - 1]->IsAlive())
 		{
-		case 0: pos = 1;
-			break;
-		case 1: pos = 2 ;
-			break;
-		case 2: pos = 3;
-			break;
-		default: break;
+			std::cout << "Select a valid piece number" << std::endl;
+			std::cin >> piece;
 		}
 
-		computers.emplace_back(new Computer(name, pos));
-
-		computerDecisionManager->InputComputers(computers[i]);
+		return piece;
 	}
 
-	for (unsigned i = 0; i < 3; ++i)
+	void World1::Update()
 	{
-		const auto name = "O" + std::to_string(i + 1);
-		unsigned pos = 0;
+		const auto piece = ChoosePiece() - 1;
 
-		switch (i)
+		MovePlayer(players[piece]);
+
+		for (const auto& computer : computers)
 		{
-		case 0: pos = 7;
-			break;
-		case 1: pos = 8;
-			break;
-		case 2: pos = 9;
-			break;
-		default: break;
+			if (players[piece]->GetLocation() == computer->GetLocation())
+				computer->Dead();
 		}
 
-		players.push_back(new Player(name, pos));
+		std::cout << "Player's Move" << std::endl;
 
-		computerDecisionManager->InputPlayers(players[i]);
+		DrawMap();
+
+		std::cout << "Computer's Move" << std::endl;
+		decisionManager.Move(players, computers);
+
+		isPlayerWinner = gameOver = NoMovablePieces();
+
+		if (gameOver)
+			return;
+
+		CheckWinState();
 	}
-}
 
-void World1::Restart()
-{
-	for (unsigned i = 0; i < computers.size(); ++i)
+	void World1::DrawMap()
 	{
-		computers[i]->SetName("X" + std::to_string(i + 1));
-
-		switch (i)
+		for (unsigned y = 0; y < rows; ++y)
 		{
-		case 0: computers[i]->SetLocation(1);
-			break;
-		case 1: computers[i]->SetLocation(2);
-			break;
-		case 2: computers[i]->SetLocation(3);
-			break;
-		default: break;
+			for (unsigned x = 0; x < columns; ++x)
+			{
+				unsigned short offset = x + y * 5;
+
+				if (!(y & 1))
+					matrix[offset] = x % 2 != 0 ? "|" : std::to_string(short(x * .5 + y * .5 * 3) + 1) + " ";
+				else
+					matrix[offset] = x % 2 == 0 ? "--" : " ";
+			}
 		}
 
-		computers[i]->LiveAgain();
-	}
-
-	for (unsigned i = 0; i < players.size(); ++i)
-	{
-		players[i]->SetName("O" + std::to_string(i + 1));
-
-		switch (i)
+		for (const auto& player : players)
 		{
-		case 0: players[i]->SetLocation(7);
-			break;
-		case 1: players[i]->SetLocation(8);
-			break;
-		case 2: players[i]->SetLocation(9);
-			break;
-		default: break;
+			if (!player->IsAlive())
+				continue;
+
+			if (matrix.find(player->GetLocation()) != matrix.end())
+			{
+				const auto location = player->GetLocation();
+				unsigned offset;
+
+				if (location > 3 && location <= 6)
+					offset = location * 2 + 2;
+				else if (location > 6)
+					offset = location * 2 + 6;
+				else
+					offset = location * 2 - 2;
+
+				matrix[offset] = player->GetName();
+			}
 		}
 
-		players[i]->LiveAgain();
-	}
-
-	computerDecisionManager->Restart(playerIsWinner);
-}
-
-unsigned World1::ChoosePiece()
-{
-	unsigned short piece = 0;
-
-	while (!ValidPiece(piece) || !players[piece - 1]->IsAlive())
-	{
-		std::cout << "Select a valid piece number" << std::endl;
-		std::cin >> piece;
-	}
-
-	return piece;
-}
-
-void World1::Update()
-{
-	const auto piece = ChoosePiece() - 1;
-
-	MovePlayer(players[piece]);
-
-	for (auto computer : computers)
-	{
-		if (players[piece]->GetLocation() == computer->GetLocation())
-			computer->Dead();		
-	}
-
-	std::cout << "Player's Move" << std::endl;
-
-	DrawMap();
-
-	std::cout << "Computer's Move" << std::endl;
-	computerDecisionManager->Move();
-
-	playerIsWinner = gameOver = NoMovablePieces();
-
-	if (gameOver)
-		return;
-
-	CheckWinState();
-}
-
-void World1::DrawMap()
-{
-	for (unsigned y = 0; y < rows; ++y)
-		for (unsigned x = 0; x < columns; ++x)
+		for (const auto& c : computers)
 		{
-			unsigned short offset = x + y * 5;
+			if (!c->IsAlive())
+				continue;
 
-			if (!(y & 1))
-				matrix[offset] = x % 2 != 0 ? "|" : std::to_string(short(x * .5 + y * .5 * 3) + 1) + " ";
-			else
-				matrix[offset] = x % 2 == 0 ? "--" : " ";
+			if (matrix.find(c->GetLocation()) != matrix.end())
+			{
+				const auto location = c->GetLocation();
+				unsigned offset;
+
+				if (location > 3 && location <= 6)
+					offset = location * 2 + 2;
+				else if (location > 6)
+					offset = location * 2 + 6;
+				else
+					offset = location * 2 - 2;
+
+				matrix[offset] = c->GetName();
+			}
 		}
-	
-		
-	for (auto && player : players)
-	{
-		if (!player->IsAlive())
-			continue;
 
-		if (matrix.find(player->GetLocation()) != matrix.end())
+		const auto size = matrix.size();
+		for (unsigned i = 0; i < size; ++i)
 		{
-			const auto location = player->GetLocation();
-			unsigned offset;
+			if (i % rows == 0)
+				std::cout << std::endl;
 
-			if (location > 3 && location <= 6)
-				offset = location * 2 + 2;
-			else if (location > 6)
-				offset = location * 2 + 6;
-			else
-				offset = location * 2 - 2;
-			 
-			matrix[offset] = player->GetName();
+			std::cout << matrix[i];
 		}
+
+		std::cout << "\n\n";
 	}
 
-	for (auto && c : computers)
+	bool World1::ValidPiece(const unsigned piece) const
 	{
-		if (!c->IsAlive())
-			continue;
-
-		if (matrix.find(c->GetLocation()) != matrix.end())
-		{
-			const auto location = c->GetLocation();
-			unsigned offset;
-
-			if (location > 3 && location <= 6)
-				offset = location * 2 + 2;
-			else if (location > 6)
-				offset = location * 2 + 6;
-			else
-				offset = location * 2 - 2;
-						
-			matrix[offset] = c->GetName();
-		}
-	}	
-
-	const auto size = matrix.size();
-	for (unsigned i = 0; i < size; ++i)
-	{
-		if (i % rows == 0)
-			std::cout << std::endl;
-
-		std::cout << matrix[i];
+		return piece >= 1 && piece <= players.size();
 	}
-
-	std::cout << "\n\n";
 }

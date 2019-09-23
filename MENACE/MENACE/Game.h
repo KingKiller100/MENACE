@@ -1,43 +1,31 @@
 #pragma once
-#include <vector>
-#include "iWorld.h"
+#include "WorldBase.h"
+#include "Patterns/Singleton.h"
 
-class Game final
+class Game final : public Pattern::Singleton<Game>
 {
 public:
+	explicit Game(Token);
 	~Game();
 
-	static Game *Create();
 	void PlayGame(const unsigned columns, const unsigned rows);
 
-	bool Playing() const											{ return playing; }
-	void SetPlaying(const bool p)									{ playing = p; }
+	bool GameOver() const;
 
-	bool GameOver() const
-	{
-		return worlds[level]->gameOver;
-	}
+	void Restart();
 
-	void Restart()
-	{
-		worlds[level]->Restart();
-		Draw();
-	}
+	constexpr bool Playing() const										{ return playing; }
+	constexpr void SetPlaying(const bool p)								{ playing = p; }
 
-	bool Winner() const												{ return worlds[level]->playerIsWinner; }
+	bool Winner() const;
 
 private:
-	Game();
 
 	void Update();
-	void Draw();
+	void Draw() noexcept;
 
 private:
-	static Game *mInstance;
-
-	unsigned level;
-
 	bool playing;
 	
-	std::vector<iWorld*> worlds;
+	std::shared_ptr<World::WorldBase> worlds;
 };

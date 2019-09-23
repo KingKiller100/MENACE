@@ -1,44 +1,30 @@
 #pragma once
+#include "Patterns/Singleton.h"
+#include "iPiece.h"
 #include <vector>
-#include "Computer.h"
-#include "Player.h"
+#include <memory>
 
-class DecisionManager final
+
+class DecisionManager final : public Pattern::Singleton<DecisionManager>
 {
-public:
-	DecisionManager(const DecisionManager &&) = delete;
-	DecisionManager(const DecisionManager &) = delete;
-	
+public:	
+	DecisionManager(Token);
 	~DecisionManager();
+		
+	void Move(std::vector<std::unique_ptr<iPiece>>& players, std::vector<std::unique_ptr<iPiece>>& computers);
 
-	static DecisionManager * Instance();
-
-	void Clear();
-
-	void InputPlayers(Player *player);
-	void InputComputers(Computer* computer);
-
-	void Move();
-
-	void FirstTurn();
-	void SecondTurn();
-	void ThirdTurn();
+	void FirstTurn(std::vector<std::unique_ptr<iPiece>>& players, std::vector<std::unique_ptr<iPiece>>& computers);
+	void SecondTurn(std::vector<std::unique_ptr<iPiece>>& players, std::vector<std::unique_ptr<iPiece>>& computers);
+	void ThirdTurn(std::vector<std::unique_ptr<iPiece>>& players, std::vector<std::unique_ptr<iPiece>>& computers);
 
 	void Restart(const bool playerWon);
 	
 	DecisionManager& operator=(const DecisionManager &) = delete;
 
-private:
-	DecisionManager();
-
-	static DecisionManager * mInstance;
-
-	std::vector<Computer*> computers;
-	std::vector<Player*> players;
-
-	std::vector<int> firstLessons;
-	std::vector<int> secondLessons;
-	std::vector<int> thirdLessons;
+private:	
+	std::vector<int> firstActions;
+	std::vector<int> secondActions;
+	std::vector<int> thirdActions;
 
 	unsigned turn;
 	unsigned choice;

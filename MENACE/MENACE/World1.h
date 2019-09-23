@@ -1,22 +1,21 @@
 #pragma once
-#include "iWorld.h"
-#include "DecisionManager.h"
+#include "WorldBase.h"
 
-class World1 final : public iWorld
+namespace World
 {
-public:
-	World1(const unsigned columns, const unsigned rows);
-	void Restart() override;
-	void Update();
+	class World1 final : public WorldBase
+	{
+	public:
+		World1(const unsigned columns, const unsigned rows);
+		~World1();
 
-	~World1() = default;
+		void Restart() override;
+		void Update() override;
+		
+		void DrawMap() override;
+		bool ValidPiece(const unsigned piece) const override;
 
-	void DrawMap() override;
-	bool ValidPiece(const unsigned piece) const override						{ return piece >= 1 && piece <= players.size(); }
-
-private:
-	unsigned ChoosePiece() override;
-
-private:
-	DecisionManager * computerDecisionManager;
-};
+	private:
+		unsigned ChoosePiece() override;
+	};
+}

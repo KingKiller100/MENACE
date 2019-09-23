@@ -1,9 +1,9 @@
-#include "Player.h"
+#include "PlayerPiece.h"
 
-Player::Player(std::string name, const unsigned short location) : Entities(name, location)
+PlayerPiece::PlayerPiece(std::string name, const unsigned short location) : Piece(name, location)
 {}
 
-void Player::MoveLocation(const int loc)
+void PlayerPiece::MoveLocation(const unsigned short loc)
 {
 	location = loc;
 }
