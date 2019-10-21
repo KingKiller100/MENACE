@@ -8,24 +8,25 @@ public:
 	explicit Game(Token);
 	~Game();
 
-	void PlayGame(const unsigned columns, const unsigned rows);
+	void PlayGame(const unsigned columns, const unsigned rows) const;
 
 	bool GameOver() const;
 
-	void Restart();
+	void Restart() const;
 
-	constexpr bool Playing() const										{ return playing; }
-	constexpr void SetPlaying(const bool p)								{ playing = p; }
+	bool Playing() const					;					
+	constexpr void SetPlaying(const bool p)			;					
 
 	bool Winner() const;
 
 private:
 
-	void Update();
-	void Draw() noexcept;
+	void Update() const;
+	void Draw() const noexcept;
 
 private:
 	bool playing;
 	
-	std::shared_ptr<World::WorldBase> worlds;
+	std::unique_ptr<World::WorldBase> worlds;
 };
+

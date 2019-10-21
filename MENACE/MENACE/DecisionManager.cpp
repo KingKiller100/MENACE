@@ -1,16 +1,18 @@
 #include "DecisionManager.h"
+
+#include "iPiece.h"
+
 #include <random>
 
-DecisionManager::DecisionManager(Token) : turn(0)
+DecisionManager::DecisionManager(Token) : turn(0), choice(0)
 {
 	firstActions = secondActions = thirdActions = {0, 1, 2};
 }
 
 DecisionManager::~DecisionManager()
-{
-}
+= default;
 
-void DecisionManager::Move(std::vector<iPiece::u_ptr>& players, std::vector<iPiece::u_ptr>& computers)
+void DecisionManager::Move(std::vector<iPiece::U_Ptr>& players, std::vector<iPiece::U_Ptr>& computers)
 {
 	switch (turn)
 	{
@@ -38,7 +40,7 @@ unsigned MakeChoice(const std::vector<int> &lesson)
 	return unsigned(distribution(generator));
 }
 
-void DecisionManager::FirstTurn(std::vector<iPiece::u_ptr>& players, std::vector<iPiece::u_ptr>& computers)
+void DecisionManager::FirstTurn(std::vector<iPiece::U_Ptr>& players, std::vector<iPiece::U_Ptr>& computers)
 {
 	choice = MakeChoice(firstActions);
 
@@ -84,7 +86,7 @@ void DecisionManager::FirstTurn(std::vector<iPiece::u_ptr>& players, std::vector
 	}
 }
 
-void DecisionManager::SecondTurn(std::vector<iPiece::u_ptr>& players, std::vector<iPiece::u_ptr>& computers)
+void DecisionManager::SecondTurn(std::vector<iPiece::U_Ptr>& players, std::vector<iPiece::U_Ptr>& computers)
 {
 	choice = MakeChoice(secondActions);
 
@@ -154,8 +156,9 @@ void DecisionManager::SecondTurn(std::vector<iPiece::u_ptr>& players, std::vecto
 	}
 }
 
-void DecisionManager::ThirdTurn(std::vector<iPiece::u_ptr>& players, std::vector<iPiece::u_ptr>& computers)
+void DecisionManager::ThirdTurn(std::vector<iPiece::U_Ptr>& players, std::vector<iPiece::U_Ptr>& computers)
 {
+	
 }
 
 void DecisionManager::Restart(const bool playerWon)

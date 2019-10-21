@@ -1,6 +1,8 @@
 #pragma once
 #include "WorldBase.h"
 
+class DecisionManager;
+
 namespace World
 {
 	class World1 final : public WorldBase
@@ -17,5 +19,8 @@ namespace World
 
 	private:
 		unsigned ChoosePiece() override;
+
+	private:
+		DecisionManager& decisionManager;
 	};
 }

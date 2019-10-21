@@ -6,11 +6,9 @@
 #include <iostream>
 
 namespace World
-{
-	static auto& decisionManager = DecisionManager::GetInstance();
-
-
-	World1::World1(const unsigned columns, const unsigned rows) : WorldBase(columns, rows)
+{	
+	World1::World1(const unsigned columns, const unsigned rows)
+	: WorldBase(columns, rows), decisionManager(DecisionManager::Reference())
 	{
 		for (unsigned short i = 0; i < 6; ++i)
 		{
@@ -74,7 +72,7 @@ namespace World
 			default: break;
 			}
 
-			computers[i]->LiveAgain();
+			computers[i]->Live();
 		}
 
 		for (unsigned i = 0; i < players.size(); ++i)
@@ -92,7 +90,7 @@ namespace World
 			default: break;
 			}
 
-			players[i]->LiveAgain();
+			players[i]->Live();
 		}
 
 		decisionManager.Restart(isPlayerWinner);
@@ -103,11 +101,12 @@ namespace World
 	{
 		unsigned short piece = 0;
 
-		while (!ValidPiece(piece) || !players[piece - 1]->IsAlive())
+		do
 		{
 			std::cout << "Select a valid piece number" << std::endl;
 			std::cin >> piece;
 		}
+		while (!ValidPiece(piece) || !players[piece - 1]->IsAlive());
 
 		return piece;
 	}
@@ -116,7 +115,7 @@ namespace World
 	{
 		const auto piece = ChoosePiece() - 1;
 
-		MovePlayer(players[piece]);
+		MovePlayer(*players[piece]);
 
 		for (const auto& computer : computers)
 		{
@@ -148,9 +147,9 @@ namespace World
 				unsigned short offset = x + y * 5;
 
 				if (!(y & 1))
-					matrix[offset] = x % 2 != 0 ? "|" : std::to_string(short(x * .5 + y * .5 * 3) + 1) + " ";
+					worldMatrix[offset] = x % 2 != 0 ? "|" : std::to_string(short(x * .5 + y * .5 * 3) + 1) + " ";
 				else
-					matrix[offset] = x % 2 == 0 ? "--" : " ";
+					worldMatrix[offset] = x % 2 == 0 ? "--" : " ";
 			}
 		}
 
@@ -159,7 +158,7 @@ namespace World
 			if (!player->IsAlive())
 				continue;
 
-			if (matrix.find(player->GetLocation()) != matrix.end())
+			if (worldMatrix.find(player->GetLocation()) != worldMatrix.end())
 			{
 				const auto location = player->GetLocation();
 				unsigned offset;
@@ -171,18 +170,18 @@ namespace World
 				else
 					offset = location * 2 - 2;
 
-				matrix[offset] = player->GetName();
+				worldMatrix[offset] = player->GetName();
 			}
 		}
 
-		for (const auto& c : computers)
+		for (const auto& computer : computers)
 		{
-			if (!c->IsAlive())
+			if (!computer->IsAlive())
 				continue;
 
-			if (matrix.find(c->GetLocation()) != matrix.end())
+			if (worldMatrix.find(computer->GetLocation()) != worldMatrix.end())
 			{
-				const auto location = c->GetLocation();
+				const auto location = computer->GetLocation();
 				unsigned offset;
 
 				if (location > 3 && location <= 6)
@@ -192,17 +191,17 @@ namespace World
 				else
 					offset = location * 2 - 2;
 
-				matrix[offset] = c->GetName();
+				worldMatrix[offset] = computer->GetName();
 			}
 		}
 
-		const auto size = matrix.size();
+		const auto size = worldMatrix.size();
 		for (unsigned i = 0; i < size; ++i)
 		{
 			if (i % rows == 0)
 				std::cout << std::endl;
 
-			std::cout << matrix[i];
+			std::cout << worldMatrix[i];
 		}
 
 		std::cout << "\n\n";

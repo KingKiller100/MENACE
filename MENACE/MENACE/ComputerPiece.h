@@ -7,16 +7,18 @@ public:
 	ComputerPiece(std::string& name, const int location) noexcept;
 	virtual ~ComputerPiece();
 
-	std::string& GetName() noexcept override;
+	const std::string& GetName() const noexcept override;
 	void SetName(const std::string& n) noexcept override;
 
 	unsigned short GetLocation() const noexcept override;
 	void SetLocation(const unsigned short l) noexcept override;
 
 	bool IsAlive() const noexcept override;
-	void LiveAgain() noexcept override;
+	void Live() noexcept override;
 	void Dead() noexcept override;
 
+	void MoveLocation(const unsigned short loc) override;
+	
 protected:
 	bool isAlive_;
 	std::string name_;

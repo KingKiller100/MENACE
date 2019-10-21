@@ -1,8 +1,10 @@
 #pragma once
 
+#include <memory>
+
 namespace Pattern
 {
-	template<class T>
+	template<typename T>
 	class Singleton
 	{
 	public:
@@ -10,17 +12,30 @@ namespace Pattern
 		
 		Singleton(const Singleton&) = delete;
 		Singleton& operator=(const Singleton) = delete;
-
-		static T& GetInstance()
+		
+		static T& Reference()
 		{
-			static auto instance_ = std::make_unique<T>(Token());
-			return *instance_;
+			return *instance;
+		}
+				
+	protected:
+		Singleton()
+		{
+			instance = std::make_unique<T>(Token());
+		}
+
+		static std::unique_ptr<T>& Pointer()
+		{
+			return instance;
 		}
 
 	protected:
-		Singleton() {}
-
-	protected:
 		struct Token {};
+
+	private:
+		static std::unique_ptr<T> instance;
 	};
 }
+
+template<typename T>
+std::unique_ptr<T> Pattern::Singleton<T>::instance;

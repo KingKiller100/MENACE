@@ -10,14 +10,14 @@ bool PlayAgain()
 	std::string input;
 	std::cin >> input;
 
-	return input[0] == 'Y' || input[0] == 'y';	
+	return input.front() == 'Y' || input.front() == 'y';	
 }
 
 int main(int argc, char **argv)
 {
 	std::cout << "Welcome To MENACE!" << std::endl;
 	
-	auto& game = Game::GetInstance();
+	auto& game = Game::Reference();
 
 	std::cout << "You are the O's" << std::endl << "BEGIN" << std::endl;
 

@@ -1,6 +1,9 @@
 #include "PlayerPiece.h"
 
-PlayerPiece::PlayerPiece(std::string name, const unsigned short location) : name_(std::move(name)), location_(location)
+PlayerPiece::PlayerPiece(std::string& name, const unsigned short location)
+: isAlive_(false),
+  name_(std::move(name)),
+  location_(location)
 {}
 
 void PlayerPiece::MoveLocation(const unsigned short loc)
@@ -8,7 +11,7 @@ void PlayerPiece::MoveLocation(const unsigned short loc)
 	location_ = loc;
 }
 
-std::string& PlayerPiece::GetName() noexcept
+const std::string& PlayerPiece::GetName() const noexcept
 {
 	return name_;
 }
@@ -33,7 +36,7 @@ bool PlayerPiece::IsAlive() const noexcept
 	return isAlive_;
 }
 
-void PlayerPiece::LiveAgain() noexcept
+void PlayerPiece::Live() noexcept
 {
 	isAlive_ = true;
 }

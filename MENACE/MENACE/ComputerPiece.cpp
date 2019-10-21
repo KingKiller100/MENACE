@@ -7,7 +7,7 @@ ComputerPiece::ComputerPiece(std::string& name, const int location) noexcept
 
 ComputerPiece::~ComputerPiece() = default;
 
-std::string& ComputerPiece::GetName() noexcept
+const std::string& ComputerPiece::GetName() const noexcept
 {
 	return name_;
 }
@@ -32,7 +32,7 @@ bool ComputerPiece::IsAlive() const noexcept
 	return isAlive_;
 }
 
-void ComputerPiece::LiveAgain() noexcept
+void ComputerPiece::Live() noexcept
 {
 	isAlive_ = true;
 }
@@ -40,4 +40,9 @@ void ComputerPiece::LiveAgain() noexcept
 void ComputerPiece::Dead() noexcept
 {
 	isAlive_ = false;
+}
+
+void ComputerPiece::MoveLocation(const unsigned short loc)
+{
+	location_ = loc;
 }

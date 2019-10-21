@@ -1,12 +1,12 @@
 #include "WorldBase.h"
-#include "PlayerPiece.h"
+#include "iPiece.h"
 #include <iostream>
 
 namespace World
 {
 	WorldBase::WorldBase(const unsigned columns, const unsigned rows)
-		: gameOver(false), isPlayerWinner(false), columns(columns + 2),
-		rows(rows + 2)
+	: gameOver(false), isPlayerWinner(false),
+	columns(columns + 2), rows(rows + 2)
 	{
 	}
 
@@ -24,7 +24,7 @@ namespace World
 		}
 		computers.clear();
 
-		matrix.clear();
+		worldMatrix.clear();
 	}
 
 	bool WorldBase::ValidLocation(const unsigned location) const noexcept
@@ -34,19 +34,19 @@ namespace World
 
 	bool WorldBase::IsOnTheBoard(const unsigned location) const
 	{
-		return matrix.find(location) != matrix.end();
+		return worldMatrix.find(location) != worldMatrix.end();
 	}
 
-	bool WorldBase::ValidMovement(iPiece::u_ptr& player, const unsigned location) const
+	bool WorldBase::ValidMovement(const iPiece& player, const unsigned location) const
 	{
 		if (!ValidLocation(location))
 			return false;
 
-		const auto playerLoc = player->GetLocation();
+		const auto playerLocation = player.GetLocation();
 
-		if (playerLoc - location != columns - 2)
+		if (playerLocation - location != columns - 2)
 		{
-			for (auto&& computer : computers)
+			for (auto& computer : computers)
 			{
 				if (location == computer->GetLocation())
 					return true;
@@ -54,39 +54,39 @@ namespace World
 		}
 		else
 		{
-			for (auto&& computer : computers)
+			for (auto& computer : computers)
 			{
 				if (computer->GetLocation() == location)
 					return false;
 			}
 		}
 
-		return location < playerLoc;
+		return location < playerLocation;
 	}
 
-	void WorldBase::MovePlayer(iPiece::u_ptr& player)
+	void WorldBase::MovePlayer(iPiece& player)
 	{
 		unsigned short location = 0;
 
-		while (player->GetLocation() == location || !ValidMovement(player, location))
+		while (player.GetLocation() == location || !ValidMovement(player, location))
 		{
 			std::cout << "Select a new valid location" << std::endl;
 			std::cin >> location;
 		}
 
-		dynamic_cast<PlayerPiece&>(*player).MoveLocation(location);
+		player.MoveLocation(location);
 	}
 
-	void WorldBase::PlayerWin(const iPiece::u_ptr& player)
+	void WorldBase::PlayerWin(const iPiece& player)
 	{
-		gameOver = player->GetLocation() <= columns - 2;
+		gameOver = player.GetLocation() <= columns - 2;
 		if (gameOver) isPlayerWinner = true;
 	}
 
 	bool WorldBase::NoMovablePieces()
 	{
-		auto immovable = 0;
-		auto livingPlayers = 0;
+		auto immovable = unsigned(0);
+		auto livingPlayers = unsigned(0);
 
 		for (auto& player : players)
 		{
@@ -115,7 +115,9 @@ namespace World
 		for (const auto& player : players)
 		{
 			if (player->IsAlive())
-				PlayerWin(player);
+			{
+				PlayerWin(*player);
+			}
 			else
 			{
 				deadPieces++;
@@ -132,7 +134,7 @@ namespace World
 		for (auto& computer : computers)
 		{
 			if (computer->IsAlive())
-				ComputerWin(computer);
+				ComputerWin(*computer);
 			else
 			{
 				deadPieces++;
@@ -140,14 +142,15 @@ namespace World
 				isPlayerWinner = true;
 			}
 
+
 			if (gameOver)
 				return;
 		}
 	}
 
-	void WorldBase::ComputerWin(const iPiece::u_ptr& computer)
+	void WorldBase::ComputerWin(const iPiece& computer)
 	{
-		gameOver = computer->GetLocation() > (rows - 2) * (columns - 2) - (columns - 2);
+		gameOver = computer.GetLocation() > (rows - 2) * (columns - 2) - (columns - 2);
 		if (gameOver) isPlayerWinner = false;
 	}
 

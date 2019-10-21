@@ -1,10 +1,12 @@
 #pragma once
 #include "iWorld.h"
-#include "iPiece.h"
 
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
+
+class iPiece;
 
 namespace World
 {	
@@ -21,17 +23,18 @@ namespace World
 		virtual void Restart() {}
 
 	protected:
-		virtual bool ValidPiece(const unsigned piece) const = 0;
 		virtual unsigned ChoosePiece() = 0;
+		virtual bool ValidPiece(const unsigned piece) const = 0;
 
+		virtual void MovePlayer(iPiece& player);
 		virtual bool ValidLocation(const unsigned location) const noexcept;
-		bool IsOnTheBoard(const unsigned location) const;
-		virtual bool ValidMovement(iPiece::u_ptr& player, const unsigned location) const;
-		virtual void MovePlayer(iPiece::u_ptr& player);
+		virtual bool ValidMovement(const iPiece& player, const unsigned location) const;
 
+		bool IsOnTheBoard(const unsigned location) const;
+		
 		// Win States
-		void PlayerWin(const iPiece::u_ptr& player);
-		void ComputerWin(const iPiece::u_ptr& computer);
+		void PlayerWin(const iPiece& player);
+		void ComputerWin(const iPiece& computer);
 		bool NoMovablePieces();
 		void CheckWinState();
 
@@ -43,9 +46,9 @@ namespace World
 		unsigned columns;
 		unsigned rows;
 
-		std::vector<iPiece::u_ptr> players;
-		std::vector<iPiece::u_ptr> computers;
+		std::vector<std::unique_ptr<iPiece>> players;
+		std::vector<std::unique_ptr<iPiece>> computers;
 
-		std::map<unsigned short, std::string> matrix;
+		std::map<unsigned short, std::string> worldMatrix;
 	};
 }

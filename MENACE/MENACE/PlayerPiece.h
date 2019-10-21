@@ -4,18 +4,20 @@
 class PlayerPiece : public iPiece
 {
 public:
-	PlayerPiece(std::string name, const unsigned short location);
+	PlayerPiece(std::string& name, const unsigned short location);
 
 	~PlayerPiece() = default;
 
-	void MoveLocation(const unsigned short loc);
-	std::string& GetName() noexcept override;
+	void Dead() noexcept override;
+	void Live() noexcept override;
+	bool IsAlive() const noexcept override;
+	
+	const std::string& GetName() const noexcept override;
 	void SetName(const std::string& n) noexcept override;
+
+	void MoveLocation(const unsigned short loc) override;
 	unsigned short GetLocation() const noexcept override;
 	void SetLocation(const unsigned short l) noexcept override;
-	bool IsAlive() const noexcept override;
-	void LiveAgain() noexcept override;
-	void Dead() noexcept override;
 
 protected:
 	bool isAlive_;

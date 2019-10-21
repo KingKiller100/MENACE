@@ -1,9 +1,10 @@
 #pragma once
 #include "Patterns/Singleton.h"
-#include "iPiece.h"
+
 #include <vector>
 #include <memory>
 
+class iPiece;
 
 class DecisionManager final : public Pattern::Singleton<DecisionManager>
 {
